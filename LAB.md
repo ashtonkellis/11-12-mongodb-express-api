@@ -1,7 +1,4 @@
 ## Submission Instructions
-* Read this document entirely and estimate how long this assignment will take.
-* Work in a fork of this repository
-* Work in a branch on your fork called `lab-11`
 * Set up Travis CI to your forked repo
 * **A deployed Heroku URL is not due until Lab 12, but you should start working on deployment for this lab now** 
 * Create a pull request from your lab branch branch to your `master` branch
