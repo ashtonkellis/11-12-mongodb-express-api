@@ -3,13 +3,13 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import logger from './logger';
-import noteRouter from '../router/note-router';
+import dinosaurRouter from '../router/dinosaur-router';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 let server;
 
-app.use(noteRouter);
+app.use(dinosaurRouter);
 
 app.all('*', (request, response) => {
   logger.log(logger.INFO, 'SERVER: Returning a 404 from the catch-all/default route');

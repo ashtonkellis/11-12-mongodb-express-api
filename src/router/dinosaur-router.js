@@ -1,37 +1,27 @@
 'use strict';
 
-/*
-This is the same as this:
-const express = require('express);
-const Router = express.Router;
- */
 import { Router } from 'express';
 import bodyParser from 'body-parser';
-import Note from '../model/note';
+import Dinosaur from '../model/dinosaur';
 import logger from '../lib/logger';
 
-
-// this is a third party module we are using to tit replace 
-// the body-parser we wrote from scratch in labs 8-9
-// only pass this is as middleware to POST and PUT requests
 const jsonParser = bodyParser.json();
-const noteRouter = new Router();
+const dinosaurRouter = new Router();
 
-noteRouter.post('/api/notes', jsonParser, (request, response) => {
-  logger.log(logger.INFO, 'NOTE-ROUTER POST to /api/notes - processing a request');
+dinosaurRouter.post('/api/dinosaurs', jsonParser, (request, response) => {
+  logger.log(logger.INFO, 'NOTE-ROUTER POST to /api/dinosaurs - processing a request');
   if (!request.body.title) {
-    logger.log(logger.INFO, 'NOTE-ROUTER POST /api/notes: Responding with 400 error for no title');
+    logger.log(logger.INFO, 'NOTE-ROUTER POST /api/dinosaurs: Responding with 400 error for no title');
     return response.sendStatus(400);
   }
 
-  // I need run the init() method (which returns a promise) on POST and PUT requests because Mongoose is still in the process of indexing fields that I flagged as "unique". If I don't run init() first, I get false positive tests that don't properly catch for 409 conflit errors when duplicate values are posted to the db. 
-  Note.init()
+  Dinosaur.init()
     .then(() => {
-      return new Note(request.body).save();
+      return new Dinosaur(request.body).save();
     })
-    .then((newNote) => {
-      logger.log(logger.INFO, `NOTE-ROUTER POST:  a new note was saved: ${JSON.stringify(newNote)}`);
-      return response.json(newNote);
+    .then((newDinosaur) => {
+      logger.log(logger.INFO, `NOTE-ROUTER POST:  a new dinosaur was saved: ${JSON.stringify(newDinosaur)}`);
+      return response.json(newDinosaur);
     })
     .catch((err) => {
       // we will hit here if we have some misc. mongodb error or parsing id error
@@ -45,7 +35,7 @@ noteRouter.post('/api/notes', jsonParser, (request, response) => {
         logger.log(logger.ERROR, `NOTE-ROUTER PUT: responding with 400 status code for bad request ${err.message}`);
         return response.sendStatus(400);
       }
-      // we passed in a title that already exists on a resource in the db because in our Note model, we set title to be "unique"
+      // we passed in a title that already exists on a resource in the db because in our Dinosaur model, we set title to be "unique"
       if (err.message.toLowerCase().includes('duplicate key')) {
         logger.log(logger.ERROR, `NOTE-ROUTER PUT: responding with 409 status code for dup key ${err.message}`);
         return response.sendStatus(409);
@@ -59,20 +49,20 @@ noteRouter.post('/api/notes', jsonParser, (request, response) => {
 });
 
 // you need this question mark after ":id" or else Express will skip to the catch-all in lib/server.js 
-noteRouter.get('/api/notes/:id?', (request, response) => {
-  logger.log(logger.INFO, 'NOTE-ROUTER GET /api/notes/:id = processing a request');
+dinosaurRouter.get('/api/dinosaurs/:id?', (request, response) => {
+  logger.log(logger.INFO, 'NOTE-ROUTER GET /api/dinosaurs/:id = processing a request');
 
   // TODO:
   // if (!request.params.id) do logic here to return an array of all resources, else do the logic below
 
-  return Note.findOne({ _id: request.params.id })
-    .then((note) => {
-      if (!note) {
-        logger.log(logger.INFO, 'NOTE-ROUTER GET /api/notes/:id: responding with 404 status code for no note found');
+  return Dinosaur.findOne({ _id: request.params.id })
+    .then((dinosaur) => {
+      if (!dinosaur) {
+        logger.log(logger.INFO, 'NOTE-ROUTER GET /api/dinosaurs/:id: responding with 404 status code for no dinosaur found');
         return response.sendStatus(404);
       }
-      logger.log(logger.INFO, 'NOTE-ROUTER GET /api/notes/:id: responding with 200 status code for successful get');
-      return response.json(note);
+      logger.log(logger.INFO, 'NOTE-ROUTER GET /api/dinosaurs/:id: responding with 200 status code for successful get');
+      return response.json(dinosaur);
     })
     .catch((err) => {
       // we will hit here if we have a mongodb error or parsing id error
@@ -87,9 +77,9 @@ noteRouter.get('/api/notes/:id?', (request, response) => {
     });
 });
 
-noteRouter.put('/api/notes/:id?', jsonParser, (request, response) => {
+dinosaurRouter.put('/api/dinosaurs/:id?', jsonParser, (request, response) => {
   if (!request.params.id) {
-    logger.log(logger.INFO, 'NOTE-ROUTER PUT /api/notes: Responding with a 400 error code for no id passed in');
+    logger.log(logger.INFO, 'NOTE-ROUTER PUT /api/dinosaurs: Responding with a 400 error code for no id passed in');
     return response.sendStatus(400);
   }
 
@@ -99,13 +89,13 @@ noteRouter.put('/api/notes/:id?', jsonParser, (request, response) => {
     runValidators: true,
   };
 
-  Note.init()
+  Dinosaur.init()
     .then(() => {
-      return Note.findByIdAndUpdate(request.params.id, request.body, options);
+      return Dinosaur.findByIdAndUpdate(request.params.id, request.body, options);
     })
-    .then((updatedNote) => {
-      logger.log(logger.INFO, `NOTE-ROUTER PUT - responding with a 200 status code for successful updated note: ${JSON.stringify(updatedNote)}`);
-      return response.json(updatedNote);
+    .then((updatedDinosaur) => {
+      logger.log(logger.INFO, `NOTE-ROUTER PUT - responding with a 200 status code for successful updated dinosaur: ${JSON.stringify(updatedDinosaur)}`);
+      return response.json(updatedDinosaur);
     })
     .catch((err) => {
       // we will hit here if we have some misc. mongodb error or parsing id error
@@ -119,7 +109,7 @@ noteRouter.put('/api/notes/:id?', jsonParser, (request, response) => {
         logger.log(logger.ERROR, `NOTE-ROUTER PUT: responding with 400 status code for bad request ${err.message}`);
         return response.sendStatus(400);
       }
-      // we passed in a title that already exists on a resource in the db because in our Note model, we set title to be "unique"
+      // we passed in a title that already exists on a resource in the db because in our Dinosaur model, we set title to be "unique"
       if (err.message.toLowerCase().includes('duplicate key')) {
         logger.log(logger.ERROR, `NOTE-ROUTER PUT: responding with 409 status code for dup key ${err.message}`);
         return response.sendStatus(409);
@@ -132,4 +122,4 @@ noteRouter.put('/api/notes/:id?', jsonParser, (request, response) => {
   return undefined;
 });
 
-export default noteRouter;
+export default dinosaurRouter;

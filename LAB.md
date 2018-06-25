@@ -1,6 +1,3 @@
-![cf](https://i.imgur.com/7v5ASc8.png) 11: Single Resource Express API
-======
-
 ## Submission Instructions
 * Read this document entirely and estimate how long this assignment will take.
 * Work in a fork of this repository

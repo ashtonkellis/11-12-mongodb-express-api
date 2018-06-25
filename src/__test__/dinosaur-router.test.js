@@ -2,15 +2,15 @@
 
 import faker from 'faker';
 import superagent from 'superagent';
-import Note from '../model/note';
+import Dinosaur from '../model/dinosaur';
 import { startServer, stopServer } from '../lib/server';
 
-const apiUrl = `http://localhost:${process.env.PORT}/api/notes`;
+const apiUrl = `http://localhost:${process.env.PORT}/api/dinosaurs`;
 
 // this will be a helper function mock out resources to create test items that will actually be in the Mongo database
 
-const createNoteMockPromise = () => {
-  return new Note({
+const createDinosaurMockPromise = () => {
+  return new Dinosaur({
     title: faker.lorem.words(3),
     content: faker.lorem.words(20),
   }).save();
@@ -24,20 +24,20 @@ afterAll(stopServer);
 // ".remove" is a built-in mongoose schema method 
 // that we use to clean up our test database entirely 
 // of all the mocks we created so we can start fresh with every test block
-afterEach(() => Note.remove({}));
+afterEach(() => Dinosaur.remove({}));
 
-describe('POST requests to /api/notes', () => {
-  test('POST 200 for successful creation of note', () => {
-    const mockNoteToPost = {
+describe('POST requests to /api/dinosaurs', () => {
+  test('POST 200 for successful creation of dinosaur', () => {
+    const mockDinosaurToPost = {
       title: faker.lorem.words(3),
       content: faker.lorem.words(20),
     };
     return superagent.post(apiUrl)
-      .send(mockNoteToPost)
+      .send(mockDinosaurToPost)
       .then((response) => {
         expect(response.status).toEqual(200);
-        expect(response.body.title).toEqual(mockNoteToPost.title);
-        expect(response.body.content).toEqual(mockNoteToPost.content);
+        expect(response.body.title).toEqual(mockDinosaurToPost.title);
+        expect(response.body.content).toEqual(mockDinosaurToPost.content);
         expect(response.body._id).toBeTruthy();
         expect(response.body.createdOn).toBeTruthy();
       })
@@ -47,11 +47,11 @@ describe('POST requests to /api/notes', () => {
   });
 
   test('POST 400 for not sending in a required TITLE property', () => {
-    const mockNoteToPost = {
+    const mockDinosaurToPost = {
       content: faker.lorem.words(50),
     };
     return superagent.post(apiUrl)
-      .send(mockNoteToPost)
+      .send(mockDinosaurToPost)
       .then((response) => {
         throw response;
       })
@@ -61,10 +61,10 @@ describe('POST requests to /api/notes', () => {
   });
 
   test('POST 409 for duplicate key', () => {
-    return createNoteMockPromise()
-      .then((newNote) => {
+    return createDinosaurMockPromise()
+      .then((newDinosaur) => {
         return superagent.post(apiUrl)
-          .send({ title: newNote.title })
+          .send({ title: newDinosaur.title })
           .then((response) => {
             throw response;
           })
@@ -78,26 +78,26 @@ describe('POST requests to /api/notes', () => {
   });
 });
 
-describe('GET requests to /api/notes', () => {
-  test('200 GET for succesful fetching of a note', () => {
-    let mockNoteForGet;
-    return createNoteMockPromise()
-      .then((note) => {
-        mockNoteForGet = note;
+describe('GET requests to /api/dinosaurs', () => {
+  test('200 GET for succesful fetching of a dinosaur', () => {
+    let mockDinosaurForGet;
+    return createDinosaurMockPromise()
+      .then((dinosaur) => {
+        mockDinosaurForGet = dinosaur;
         // I can return this to the next then block because superagent requests are also promisfied
-        return superagent.get(`${apiUrl}/${mockNoteForGet._id}`);
+        return superagent.get(`${apiUrl}/${mockDinosaurForGet._id}`);
       })
       .then((response) => {
         expect(response.status).toEqual(200);
-        expect(response.body.title).toEqual(mockNoteForGet.title);
-        expect(response.body.content).toEqual(mockNoteForGet.content);
+        expect(response.body.title).toEqual(mockDinosaurForGet.title);
+        expect(response.body.content).toEqual(mockDinosaurForGet.content);
       })
       .catch((err) => {
         throw err;
       });
   });
 
-  test('404 GET: no note with this id', () => {
+  test('404 GET: no dinosaur with this id', () => {
     return superagent.get(`${apiUrl}/THISISABADID`)
       .then((response) => {
         throw response;
@@ -108,17 +108,17 @@ describe('GET requests to /api/notes', () => {
   });
 });
 
-describe('PUT request to /api/notes', () => {
+describe('PUT request to /api/dinosaurs', () => {
   test('200 PUT for successful update of a resource', () => {
-    return createNoteMockPromise()
-      .then((newNote) => {
-        return superagent.put(`${apiUrl}/${newNote._id}`)
+    return createDinosaurMockPromise()
+      .then((newDinosaur) => {
+        return superagent.put(`${apiUrl}/${newDinosaur._id}`)
           .send({ title: 'updated title', content: 'updated content' })
           .then((response) => {
             expect(response.status).toEqual(200);
             expect(response.body.title).toEqual('updated title');
             expect(response.body.content).toEqual('updated content');
-            expect(response.body._id.toString()).toEqual(newNote._id.toString());
+            expect(response.body._id.toString()).toEqual(newDinosaur._id.toString());
           })
           .catch((err) => {
             throw err;

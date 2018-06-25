@@ -2,7 +2,7 @@
 
 import mongoose from 'mongoose';
 
-const noteSchema = mongoose.Schema({
+const dinosaurSchema = mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -22,4 +22,4 @@ const noteSchema = mongoose.Schema({
 // https://stackoverflow.com/questions/50687592/jest-and-mongoose-jest-has-detected-opened-handles
 // the first arg of mongoose.model is the name of your collection
 const skipInit = process.env.NODE_ENV === 'development';
-export default mongoose.model('notes', noteSchema, 'notes', skipInit);
+export default mongoose.model('dinosaurs', dinosaurSchema, 'dinosaurs', skipInit);
