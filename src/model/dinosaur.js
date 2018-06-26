@@ -3,14 +3,20 @@
 import mongoose from 'mongoose';
 
 const dinosaurSchema = mongoose.Schema({
-  title: {
+  name: {
     type: String,
     required: true,
     unique: true,
   },
-  content: {
+  species: {
     type: String,
-    minlength: 10,
+    // required: true,
+  },
+  eatsMeat: {
+    type: Boolean,
+  },
+  eatsPlants: {
+    type: Boolean,
   },
   createdOn: {
     type: Date,
@@ -18,8 +24,5 @@ const dinosaurSchema = mongoose.Schema({
   },
 });
 
-// Ran into a bug coding this, followed instructions on this stackoverflow page:
-// https://stackoverflow.com/questions/50687592/jest-and-mongoose-jest-has-detected-opened-handles
-// the first arg of mongoose.model is the name of your collection
 const skipInit = process.env.NODE_ENV === 'development';
 export default mongoose.model('dinosaurs', dinosaurSchema, 'dinosaurs', skipInit);
