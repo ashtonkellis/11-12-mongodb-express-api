@@ -19,7 +19,6 @@ const createDinosaurMockPromise = () => {
 beforeAll(startServer);
 afterAll(stopServer);
 
-// beforeEach(() => Dinosaur.remove({}));
 afterEach(() => Dinosaur.remove({}));
 
 describe('POST requests to /api/dinosaurs', () => {
@@ -79,32 +78,6 @@ describe('POST requests to /api/dinosaurs', () => {
 });
 
 describe('GET requests to /api/dinosaurs', () => {
-  // TODO: figure out why the previous dinosaurs are not being removed, and this is returning 4 instead of 3
-  test.skip('200 GET for successful fetching of all dinosaurs', () => {
-    let dinosaurs;
-    Promise.all([
-      createDinosaurMockPromise(),
-      createDinosaurMockPromise(),
-      createDinosaurMockPromise(),
-    ])
-      .then((results) => {
-        dinosaurs = results;
-        // console.log(dinosaurs, 'DINOS COMING BACK FROM THE PROMISE.ALL');
-        return superagent.get(`${apiUrl}`)
-          .then((response) => {
-            // console.log(response.body, 'RESULTS OF SUPERAGENT GET');
-            const numOfDinosaurs = dinosaurs.length;
-            expect(response.body).toHaveLength(numOfDinosaurs);
-          })
-          .catch((err) => {
-            throw err;
-          });
-      })
-      .catch((err) => {
-        throw err;
-      });
-  });
-
   test('200 GET for succesful fetching of a dinosaur', () => {
     let mockDinosaurForGet;
     return createDinosaurMockPromise()
@@ -123,6 +96,30 @@ describe('GET requests to /api/dinosaurs', () => {
         throw err;
       });
   });
+  // TODO: figure out why the previous dinosaurs are not being removed, and this is returning 4 instead of 3
+  test('200 GET for successful fetching of all dinosaurs', (done) => {
+    let dinosaurs;
+    Promise.all([
+      createDinosaurMockPromise(),
+      createDinosaurMockPromise(),
+      createDinosaurMockPromise(),
+    ])
+      .then((results) => {
+        dinosaurs = results;
+        return superagent.get(`${apiUrl}`)
+          .then((response) => {
+            expect(response.body).toHaveLength(dinosaurs.length);
+            done();
+          })
+          .catch((err) => {
+            throw err;
+          });
+      })
+      .catch((err) => {
+        throw err;
+      });
+  });
+
 
   test('404 GET: no dinosaur with this id', () => {
     return superagent.get(`${apiUrl}/THISISABADID`)

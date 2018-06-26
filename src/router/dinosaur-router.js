@@ -14,9 +14,6 @@ dinosaurRouter.post('/api/dinosaurs', jsonParser, (request, response, next) => {
     const err = new Error('Name required');
     err.status = 400;
     next(err);
-    
-    // logger.log(logger.INFO, 'DINOSAUR-ROUTER POST /api/dinosaurs: Responding with 400 error for no name');
-    // return response.sendStatus(400);
   }
 
   Dinosaur.init()
@@ -43,15 +40,12 @@ dinosaurRouter.get('/api/dinosaurs/:id?', (request, response, next) => {
       .catch(next);
   }
 
-  // TODO: refactor this to use find by id and delete or find by id and remove
-  return Dinosaur.findOne({ _id: request.params.id })
+  return Dinosaur.findById(request.params.id)
     .then((dinosaur) => {
       if (!dinosaur) {
         const err = new Error(`Dinosaur # ${request.params.id} not found`);
         err.status = 404;
         next(err);
-        // logger.log(logger.INFO, 'DINOSAUR-ROUTER GET /api/dinosaurs/:id: responding with 404 status code for no dinosaur found');
-        // return response.sendStatus(404);
       }
       logger.log(logger.INFO, 'DINOSAUR-ROUTER GET /api/dinosaurs/:id: responding with 200 status code for successful get');
       return response.json(dinosaur);
@@ -64,8 +58,6 @@ dinosaurRouter.put('/api/dinosaurs/:id?', jsonParser, (request, response, next) 
     const err = new Error('Id required');
     err.status = 400;
     next(err);
-    // logger.log(logger.INFO, 'DINOSAUR-ROUTER PUT /api/dinosaurs: Responding with a 400 error code for no id passed in');
-    // return response.sendStatus(400);
   }
 
   const options = {
@@ -88,23 +80,23 @@ dinosaurRouter.put('/api/dinosaurs/:id?', jsonParser, (request, response, next) 
 dinosaurRouter.delete('/api/dinosaurs/:id?', (request, response, next) => {
   logger.log(logger.INFO, 'DINOSAUR-ROUTER DELETE /api/dinosaurs/:id = processing a request');
 
-  if (!request.params.id) return response.sendStatus(404);
+  if (!request.params.id) {
+    const err = new Error('Id required');
+    err.status = 404;
+    next(err);
+  }
 
-  // TODO: refactor to use find by id and delete, or find by id and remove
-  return Dinosaur.deleteOne({ _id: request.params.id })
+  return Dinosaur.findByIdAndRemove(request.params.id)
     .then((data) => {
-      if (!data.n) {
-        // TODO: figure out why this isn't working!
-        // const err = new Error('Id required');
-        // err.status = 400;
-        // next(err);
-        
-        logger.log(logger.INFO, 'DINOSAUR-ROUTER DELETE /api/dinosaurs/:id responding with 404 status code for no dinosaur found');
-        return response.sendStatus(400);
+      if (data) {
+        logger.log(logger.INFO, 'DINOSAUR-ROUTER DELETE api/dinosaurs responding with 204 code for successful delete');
+        return response.sendStatus(204);
       }
 
-      logger.log(logger.INFO, 'DINOSAUR-ROUTER DELETE api/dinosaurs responding with 204 code for successful delete');
-      return response.sendStatus(204);
+      const err = new Error('Id required');
+      err.status = 400;
+      next(err);
+      return undefined;
     })
     .catch(next);
 });
