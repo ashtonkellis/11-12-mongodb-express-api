@@ -5,11 +5,16 @@ import mongoose from 'mongoose';
 import logger from './logger';
 import dinosaurRouter from '../router/dinosaur-router';
 
+import loggerMiddleware from './middleware/logger-middleware';
+import errorMiddleware from './middleware/error-middleware';
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 let server;
 
+app.use(loggerMiddleware);
 app.use(dinosaurRouter);
+app.use(errorMiddleware);
 
 app.all('*', (request, response) => {
   logger.log(logger.INFO, 'SERVER: Returning a 404 from the catch-all/default route');
